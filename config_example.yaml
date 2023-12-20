@@ -1,0 +1,3 @@
+base_api_url: https://api.curseforge.com/v1
+api_key: YOUR_API_KEY
+project_id: 123456
