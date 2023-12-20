@@ -7,10 +7,10 @@ import yaml
 import hashlib
 
 # Set up logging
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Set the base URL and your API key
-with open('config.yml', 'r') as f:
+with open('updater-config.yml', 'r') as f:
     config = yaml.safe_load(f)
 base_url = config['base_api_url']
 api_key = config['api_key']
@@ -18,27 +18,30 @@ project_id = config['project_id']
 
 
 # Functions
-def fetch_latest_fileid():
+def fetchServerPack():
     headers = {'x-api-key': api_key}
     response = requests.get(f'{base_url}/mods/{project_id}', headers=headers)
     response.raise_for_status()  # Ensure we got a successful response
     data = response.json()
     logging.debug(pprint(data))
-    logging.info(f'Server pack file ID: {data["data"]["serverPackFileId"]}')
-    return data['data']['serverPackFileId']
+    latest_files = data['data']['latestFiles']
+    latest_files.sort(key=lambda x: x['fileDate'], reverse=True)
+    latest_file = latest_files[0]
+    file_id = latest_file['serverPackFileId']
+    return file_id
 
-def fetch_download(file_id):
+def fetchDownload(file_id):
     headers = {'x-api-key': api_key}
     response = requests.get(f'{base_url}/mods/{project_id}/files/{file_id}', headers=headers)
     response.raise_for_status()  # Ensure we got a successful response
     data = response.json()
+    data = data['data']
     logging.debug(pprint(data))
 
     # Set variables from the API response
     download_url = data['downloadUrl']
     file_name = data['fileName']
-    logging.info(f'Latest file date: {data["fileDate"]}')
-    logging.info(f'Downloading file: {file_name} - {data["id"]}')
+    logging.info(f'Downloading file: {file_name} - {file_id}')
     response = requests.get(download_url)
     response.raise_for_status()
 
@@ -106,8 +109,11 @@ def installFiles(file_name):
         os.remove('temp')
 
 # Main
-logging.info('Fetching download')
-file_name = fetch_download()
+logging.info('Fetching latest server pack file ID')
+server_file_id = fetchServerPack()
+logging.info(f'Latest file ID: {server_file_id}')
+logging.info('Downloading...')
+file_name = fetchDownload(server_file_id)
 logging.info('Installing files')
-# installFiles(file_name)
+installFiles(file_name)
 logging.info('Update complete')
