@@ -8,6 +8,7 @@ import hashlib
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 # Set the base URL and your API key
 with open('updater-config.yml', 'r') as f:
@@ -46,7 +47,8 @@ def fetchDownload(file_id):
     response.raise_for_status()
 
     # Save the file
-    with open(file_name, 'wb') as f:
+    file_path = os.path.join('./Minecraft', file_name)
+    with open(file_path, 'wb') as f:
         f.write(response.content)
     logging.info(f'Downloaded {file_name} from {download_url}')
 
@@ -72,48 +74,51 @@ def fetchDownload(file_id):
         if os.path.exists(file_name):
             os.remove(file_name)
         exit()
-    return file_name
+    return file_path
 
-def installFiles(file_name):
+def installFiles(file_path):
     # Move files matching the regex to a temp folder
     logging.info('Moving files to temp folder')
-    os.system(f'mkdir -p temp/mods')
+    os.system(f'mkdir -p ./temp/mods')
     mods_regex = "(BlueMap.*)|(bmm.*)|(Chunky.*)|(dcintergration.*)|(HuskHomes.*)|(InvView.*)|(ledger.*)|(LuckPerms.*)|(minimotd.*)|(tabtps.*)|(worldedit.*)/gmi"
     config_regex = "(BlueMap.*)|(Chunky.*)|(dcintergration)|(HuskHomes)|(Discord.*)|(ledger)|(LuckPerms)|(minimotd)|(tabtps)|(worldedit)|(do_a_barrel_roll-server.*)/gmi"
-    os.system(f'mv mods/{mods_regex} temp/mods')
-    os.system(f'mv config/{config_regex} temp/config')
+    os.system(f'mv ./Minecraft/mods/{mods_regex} ./temp/mods')
+    os.system(f'mv ./Minecraft/config/{config_regex} ./temp/config')
+    logging.debug('Sleeping for 30 seconds, check ./temp') # DEBUG
+    os.system('sleep 30') # DEBUG
 
     # Delete the old mods folder and the config folder:
     logging.info('Deleting old mods and config folders')
-    if os.path.exists('mods'):
-        os.remove('mods')
-    if os.path.exists('config'):
-        os.remove('config')
+    if os.path.exists('./Minecraft/mods'):
+        os.system('rm -rf ./Minecraft/mods')
+    if os.path.exists('./Minecraft/config'):
+        os.system('rm -rf ./Minecraft/config')
 
     # Unzip the file if it's a zip file
     logging.info('Unzipping file')
-    if file_name.endswith('.zip'):
-        with zipfile.ZipFile(file_name, 'r') as zip_ref:
-            zip_ref.extractall('.')
+    if file_path.endswith('.zip'):
+        with zipfile.ZipFile(file_path, 'r') as zip_ref:
+            zip_ref.extractall('./Minecraft')
 
     # Move the mods and config folders back
     logging.info('Moving my mods and config folders back')
-    os.system(f'mv temp/mods mods')
-    os.system(f'mv temp/config config')
+    os.system(f'mv ./temp/mods mods')
+    os.system(f'mv ./temp/config config')
 
     # Remove the zip file and the temp folder
     logging.info('Removing zip file and temp folder')
-    if os.path.exists(file_name):
-        os.remove(file_name)
-    if os.path.exists('temp'):
-        os.remove('temp')
+    if os.path.exists(file_path):
+        os.remove(file_path)
+    if os.path.exists('./temp'):
+        # remove folder and contents
+        os.system('rm -rf ./temp')
 
 # Main
 logging.info('Fetching latest server pack file ID')
 server_file_id = fetchServerPack()
 logging.info(f'Latest file ID: {server_file_id}')
 logging.info('Downloading...')
-file_name = fetchDownload(server_file_id)
+file_path = fetchDownload(server_file_id)
 logging.info('Installing files')
-installFiles(file_name)
+installFiles(file_path)
 logging.info('Update complete')
