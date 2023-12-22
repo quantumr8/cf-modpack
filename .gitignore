@@ -1,2 +1,6 @@
-updater-config.yml
-*.log
+*
+
+!.gitignore
+!update-server.py
+!updater-config_example.yaml
+!README.md
