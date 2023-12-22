@@ -1,12 +1,7 @@
-import requests
-import os
-import zipfile
-import logging
+import requests, os, zipfile, logging, yaml, hashlib, glob, shutil
 from pprint import pprint
-import yaml
-import hashlib
-import glob
-import shutil
+from flask import Flask, request
+from discord_webhook import DiscordWebhook
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -18,6 +13,8 @@ with open('./updater-config.yaml', 'r') as f:
 base_url = config['base_api_url']
 api_key = config['api_key']
 project_id = config['project_id']
+api_key = config['api_key']
+discord_webhook = config['discord_webhook']
 
 
 # Functions
@@ -121,11 +118,27 @@ def installFiles(file_path):
         os.system('rm -rf ./temp')
 
 # Main
-logging.info('Fetching latest server pack file ID')
-server_file_id = fetchServerPack()
-logging.info(f'Latest file ID: {server_file_id}')
-logging.info('Downloading...')
-file_path = fetchDownload(server_file_id)
-logging.info('Installing files')
-installFiles(file_path)
-logging.info('Update complete')
+app = Flask(__name__)
+
+@app.route('/update', methods=['GET'])
+def update():
+    # Check if the correct API key was provided
+    if request.args.get('api_key') == api_key:
+        # Run the update script
+        logging.info('Fetching latest server pack file ID')
+        server_file_id = fetchServerPack()
+        logging.info(f'Latest file ID: {server_file_id}')
+        logging.info('Downloading...')
+        file_path = fetchDownload(server_file_id)
+        logging.info('Installing files')
+        installFiles(file_path)
+        logging.info('Sending Discord webhook')
+        webhook = DiscordWebhook(url=discord_webhook, content='Server update complete ({server_file_id})')
+        webhook.execute()
+        logging.info('Update complete')
+        return 'Update complete', 200
+    else:
+        return 'Invalid API key', 401
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
