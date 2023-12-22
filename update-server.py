@@ -84,8 +84,6 @@ def installFiles(file_path):
     config_regex = "(BlueMap.*)|(Chunky.*)|(dcintergration)|(HuskHomes)|(Discord.*)|(ledger)|(LuckPerms)|(minimotd)|(tabtps)|(worldedit)|(do_a_barrel_roll-server.*)/gmi"
     os.system(f'mv ./Minecraft/mods/{mods_regex} ./temp/mods')
     os.system(f'mv ./Minecraft/config/{config_regex} ./temp/config')
-    logging.debug('Sleeping for 30 seconds, check ./temp') # DEBUG
-    os.system('sleep 30') # DEBUG
 
     # Delete the old mods folder and the config folder:
     logging.info('Deleting old mods and config folders')
