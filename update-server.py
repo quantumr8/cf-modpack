@@ -5,6 +5,8 @@ import logging
 from pprint import pprint
 import yaml
 import hashlib
+import glob
+import shutil
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -79,11 +81,18 @@ def fetchDownload(file_id):
 def installFiles(file_path):
     # Move files matching the regex to a temp folder
     logging.info('Moving files to temp folder')
-    os.system(f'mkdir -p ./temp/mods')
-    mods_regex = "(BlueMap.*)|(bmm.*)|(Chunky.*)|(dcintergration.*)|(HuskHomes.*)|(InvView.*)|(ledger.*)|(LuckPerms.*)|(minimotd.*)|(tabtps.*)|(worldedit.*)/gmi"
-    config_regex = "(BlueMap.*)|(Chunky.*)|(dcintergration)|(HuskHomes)|(Discord.*)|(ledger)|(LuckPerms)|(minimotd)|(tabtps)|(worldedit)|(do_a_barrel_roll-server.*)/gmi"
-    os.system(f'mv ./Minecraft/mods/{mods_regex} ./temp/mods')
-    os.system(f'mv ./Minecraft/config/{config_regex} ./temp/config')
+    os.makedirs('./temp/mods', exist_ok=True)
+    os.makedirs('./temp/config', exist_ok=True)
+    mods_patterns = ["BlueMap*", "bmm*", "Chunky*", "dcintergration*", "HuskHomes*", "InvView*", "ledger*", "LuckPerms*", "minimotd*", "tabtps*", "worldedit*"]
+    config_patterns = ["BlueMap*", "Chunky*", "dcintergration*", "HuskHomes*", "Discord*", "ledger*", "LuckPerms*", "minimotd*", "tabtps*", "worldedit*", "do_a_barrel_roll-server*"]
+
+    for pattern in mods_patterns:
+        for file in glob.glob(f'./Minecraft/mods/{pattern}'):
+            shutil.move(file, './temp/mods')
+
+    for pattern in config_patterns:
+        for file in glob.glob(f'./Minecraft/config/{pattern}'):
+            shutil.move(file, './temp/config')
 
     # Delete the old mods folder and the config folder:
     logging.info('Deleting old mods and config folders')
@@ -100,8 +109,8 @@ def installFiles(file_path):
 
     # Move the mods and config folders back
     logging.info('Moving my mods and config folders back')
-    os.system(f'mv ./temp/mods mods')
-    os.system(f'mv ./temp/config config')
+    os.system(f'mv ./temp/mods ./Minecraft/mods')
+    os.system(f'mv ./temp/config ./Minecraft/config')
 
     # Remove the zip file and the temp folder
     logging.info('Removing zip file and temp folder')
