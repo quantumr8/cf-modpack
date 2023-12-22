@@ -11,7 +11,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 # Set the base URL and your API key
-with open('./updater-config.yml', 'r') as f:
+with open('./updater-config.yaml', 'r') as f:
     config = yaml.safe_load(f)
 base_url = config['base_api_url']
 api_key = config['api_key']
