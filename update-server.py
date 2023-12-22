@@ -109,8 +109,8 @@ def installFiles(file_path):
 
     # Move temp files back
     logging.info('Moving temp/mods and temp/config into Minecraft folder')
-    shutil.move('./temp/mods', './Minecraft/mods')
-    shutil.move('./temp/config', './Minecraft/config')
+    shutil.move('./temp/mods', './Minecraft')
+    shutil.move('./temp/config', './Minecraft')
 
     # Remove the zip file and the temp folder
     logging.info('Removing zip file and temp folder')
