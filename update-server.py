@@ -48,17 +48,17 @@ def fetchDownload(file_id):
     response = requests.get(download_url)
     response.raise_for_status()
 
-    # Save the file
-    file_path = os.path.join('./Minecraft', file_name)
-    with open(file_path, 'wb') as f:
-        f.write(response.content)
+    # Save the file as file_id.zip
+    file_path = f'./{file_id}.zip'
+    with open(file_path, 'wb') as file:
+        file.write(response.content)
     logging.info(f'Downloaded {file_name} from {download_url}')
 
     # Test the file hash with sha1
     file_hash = data['hashes'][0]['value']
     sha1 = hashlib.sha1()
     try:
-        with open(file_name, 'rb') as file:
+        with open(file_path, 'rb') as file:
             # Read the file in chunks to avoid memory issues with large files
             while chunk := file.read(8192):
                 sha1.update(chunk)
@@ -73,8 +73,8 @@ def fetchDownload(file_id):
         logging.info('File hash matches')
     else:
         logging.error('File hash does not match')
-        if os.path.exists(file_name):
-            os.remove(file_name)
+        if os.path.exists(file_path):
+            os.remove(file_path)
         exit()
     return file_path
 
@@ -107,13 +107,10 @@ def installFiles(file_path):
         with zipfile.ZipFile(file_path, 'r') as zip_ref:
             zip_ref.extractall('./Minecraft')
 
-    # Move the mods and config folders back
-    logging.info('Moving my mods and config folders back')
-    for file in glob.glob('./temp/mods/*'):
-        shutil.move(file, './Minecraft/mods')
-
-    for file in glob.glob('./temp/config/*'):
-        shutil.move(file, './Minecraft/config')
+    # Move temp files back
+    logging.info('Moving temp/mods and temp/config into Minecraft folder')
+    shutil.move('./temp/mods', './Minecraft/mods')
+    shutil.move('./temp/config', './Minecraft/config')
 
     # Remove the zip file and the temp folder
     logging.info('Removing zip file and temp folder')
