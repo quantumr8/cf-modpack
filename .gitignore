@@ -1,7 +1,6 @@
 *
-
 !.gitignore
 !update-server.py
-!updater-config_example.yaml
 !requirements.txt
 !README.md
+!Dockerfile

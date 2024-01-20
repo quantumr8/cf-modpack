@@ -4,17 +4,14 @@ from flask import Flask, request
 from discord_webhook import DiscordWebhook
 
 # Set up logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 # Set the base URL and your API key
-with open('./updater-config.yaml', 'r') as f:
-    config = yaml.safe_load(f)
-base_url = config['base_api_url']
-api_key = config['api_key']
-project_id = config['project_id']
-api_key = config['api_key']
-discord_webhook = config['discord_webhook']
+base_url = os.environ['BASE_API_URL']
+api_key = os.environ['CURSEFORGE_API_KEY']
+project_id = os.environ['PROJECT_ID']
+discord_webhook = os.environ['DISCORD_WEBHOOK_URL']
 
 
 # Functions
