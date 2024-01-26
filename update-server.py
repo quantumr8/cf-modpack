@@ -127,8 +127,13 @@ def update():
         logging.info('Fetching latest server pack file ID')
         server_file_id = fetchServerPack()
         logging.info(f'Latest file ID: {server_file_id}')
-        logging.info('Downloading...')
-        file_path = fetchDownload(server_file_id)
+        # Download the file if it doesn't exist
+        if not os.path.exists(f'./{server_file_id}.zip'):
+            logging.info('Downloading...')
+            file_path = fetchDownload(server_file_id)
+        else:
+            logging.info('File already exists')
+            file_path = f'./{server_file_id}.zip'
         logging.info('Installing files')
         installFiles(file_path)
         logging.info('Sending Discord webhook')
