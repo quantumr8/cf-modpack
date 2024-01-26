@@ -44,7 +44,7 @@ def fetchDownload(file_id):
     response.raise_for_status()
 
     # Save the file as file_id.zip
-    file_path = f'./{file_id}.zip'
+    file_path = f'/server/{file_id}.zip'
     with open(file_path, 'wb') as file:
         file.write(response.content)
     logging.info(f'Downloaded {file_name} from {download_url}')
@@ -102,10 +102,12 @@ def installFiles(file_path):
         with zipfile.ZipFile(file_path, 'r') as zip_ref:
             zip_ref.extractall('/server/Minecraft')
 
-    # Move temp files back
+    # Move the contents of temp/mods and temp/config into the /server/Minecraft/mods and /server/Minecraft/config folders
     logging.info('Moving temp/mods and temp/config into Minecraft folder')
-    shutil.move('/server/temp/mods', '/server/Minecraft')
-    shutil.move('/server/temp/config', '/server/Minecraft')
+    for file in glob.glob('/server/temp/mods/*'):
+        shutil.move(file, '/server/Minecraft/mods')
+    for file in glob.glob('/server/temp/config/*'):
+        shutil.move(file, '/server/Minecraft/config')
 
     # Remove the zip file and the temp folder
     logging.info('Removing zip file and temp folder')
@@ -133,7 +135,7 @@ def update():
             file_path = fetchDownload(server_file_id)
         else:
             logging.info('File already exists')
-            file_path = f'./{server_file_id}.zip'
+            file_path = f'/server/{server_file_id}.zip'
         logging.info('Installing files')
         installFiles(file_path)
         logging.info('Sending Discord webhook')
