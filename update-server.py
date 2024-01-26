@@ -83,11 +83,13 @@ def installFiles(file_path):
 
     for pattern in mods_patterns:
         for file in glob.glob(f'/server/Minecraft/mods/{pattern}'):
-            shutil.move(file, '/server/temp/mods')
+            destination = os.path.join('/server/temp/mods', os.path.basename(file))
+            shutil.move(file, destination)
 
     for pattern in config_patterns:
         for file in glob.glob(f'/server/Minecraft/config/{pattern}'):
-            shutil.move(file, '/server/temp/config')
+            destination = os.path.join('/server/temp/config', os.path.basename(file))
+            shutil.move(file, destination)
 
     # Delete the old mods folder and the config folder:
     logging.info('Deleting old mods and config folders')
