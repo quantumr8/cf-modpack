@@ -10,6 +10,7 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 # Set the base URL and your API key
 base_url = os.environ['BASE_API_URL']
 api_key = os.environ['CURSEFORGE_API_KEY']
+my_api_key = os.environ['MY_API_KEY']
 project_id = os.environ['PROJECT_ID']
 discord_webhook = os.environ['DISCORD_WEBHOOK_URL']
 
@@ -120,7 +121,7 @@ app = Flask(__name__)
 @app.route('/update', methods=['GET'])
 def update():
     # Check if the correct API key was provided
-    if request.args.get('api_key') == api_key:
+    if request.args.get('api_key') == my_api_key:
         # Run the update script
         logging.info('Fetching latest server pack file ID')
         server_file_id = fetchServerPack()
