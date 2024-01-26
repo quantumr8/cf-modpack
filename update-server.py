@@ -122,6 +122,7 @@ app = Flask(__name__)
 def update():
     # Check if the correct API key was provided
     if request.args.get('api_key') == my_api_key:
+        logging.info(f'API hit from ip: {request.remote_addr}')
         # Run the update script
         logging.info('Fetching latest server pack file ID')
         server_file_id = fetchServerPack()
@@ -137,6 +138,7 @@ def update():
         return 'Update complete', 200
     else:
         return 'Invalid API key', 401
+        logging.error('Invalid API key from ip: {request.remote_addr}')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
