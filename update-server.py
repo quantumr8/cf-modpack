@@ -1,4 +1,4 @@
-import requests, os, zipfile, logging, yaml, hashlib, glob, shutil
+import requests, os, zipfile, logging, hashlib, glob, shutil
 from pprint import pprint
 from flask import Flask, request
 from discord_webhook import DiscordWebhook
