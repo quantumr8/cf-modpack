@@ -6,7 +6,7 @@ from flask import Flask, request
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
-with open('updater-config.yaml', 'r') as file:
+with open('/server/updater-config.yaml', 'r') as file:
     config = yaml.safe_load(file)
 
 # Access values from the config file
