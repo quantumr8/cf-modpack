@@ -126,48 +126,47 @@ def fetchPlugin(id):
 def installFiles(file_path):
     # Move files matching the regex to a temp folder
     logging.info('Moving files to temp folder')
-    os.makedirs('/server/temp/mods', exist_ok=True)
-    os.makedirs('/server/temp/config', exist_ok=True)
+    os.makedirs('temp/mods', exist_ok=True)
+    os.makedirs('temp/config', exist_ok=True)
     mods_patterns = ["BlueMap*", "bmm*", "Chunky*", "dcintergration*", "HuskHomes*", "InvView*", "ledger*", "LuckPerms*", "minimotd*", "tabtps*", "worldedit*"]
     config_patterns = ["BlueMap*", "Chunky*", "dcintergration*", "HuskHomes*", "Discord*", "ledger*", "LuckPerms*", "minimotd*", "tabtps*", "worldedit*", "do_a_barrel_roll-server*"]
 
     for pattern in mods_patterns:
-        for file in glob.glob(f'/server/Minecraft/mods/{pattern}'):
-            destination = os.path.join('/server/temp/mods', os.path.basename(file))
+        for file in glob.glob(f'mods/{pattern}'):
+            destination = os.path.join('mods', os.path.basename(file))
             shutil.move(file, destination)
 
     for pattern in config_patterns:
-        for file in glob.glob(f'/server/Minecraft/config/{pattern}'):
-            destination = os.path.join('/server/temp/config', os.path.basename(file))
+        for file in glob.glob(f'config/{pattern}'):
+            destination = os.path.join('config', os.path.basename(file))
             shutil.move(file, destination)
 
     # Delete the old mods folder and the config folder:
     logging.info('Deleting old mods and config folders')
-    if os.path.exists('/server/Minecraft/mods'):
-        os.system('rm -rf /server/Minecraft/mods')
-    if os.path.exists('/server/Minecraft/config'):
-        os.system('rm -rf /server/Minecraft/config')
+    if os.path.exists('mods'):
+        os.system('rm -rf mods')
+    if os.path.exists('config'):
+        os.system('rm -rf config')
 
     # Unzip the file if it's a zip file
     logging.info('Unzipping file')
     if file_path.endswith('.zip'):
         with zipfile.ZipFile(file_path, 'r') as zip_ref:
-            zip_ref.extractall('/server/Minecraft')
+            zip_ref.extractall('./')
 
     # Move the contents of temp/mods and temp/config into the /server/Minecraft/mods and /server/Minecraft/config folders
     logging.info('Moving temp/mods and temp/config into Minecraft folder')
-    for file in glob.glob('/server/temp/mods/*'):
-        shutil.move(file, '/server/Minecraft/mods')
-    for file in glob.glob('/server/temp/config/*'):
-        shutil.move(file, '/server/Minecraft/config')
+    for file in glob.glob('temp/mods/*'):
+        shutil.move(file, 'mods')
+    for file in glob.glob('temp/config/*'):
+        shutil.move(file, 'config')
 
     # Remove the zip file and the temp folder
     logging.info('Removing zip file and temp folder')
     if os.path.exists(file_path):
         os.remove(file_path)
-    if os.path.exists('/server/temp'):
-        # remove folder and contents
-        os.system('rm -rf /server/temp')
+    if os.path.exists('temp'):
+        os.system('rm -rf temp')
 
 # Main
 app = Flask(__name__)
