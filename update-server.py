@@ -1,7 +1,6 @@
 import requests, os, zipfile, logging, hashlib, glob, shutil
 from pprint import pprint
 from flask import Flask, request
-from discord_webhook import DiscordWebhook
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -9,15 +8,16 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 # Set the base URL and your API key
 base_url = os.environ['BASE_API_URL']
-api_key = os.environ['CURSEFORGE_API_KEY']
+cf_api_key = os.environ['CURSEFORGE_API_KEY']
+modrinth_api_key = os.environ['MODRINTH_API_KEY']
 my_api_key = os.environ['MY_API_KEY']
 project_id = os.environ['PROJECT_ID']
-discord_webhook = os.environ['DISCORD_WEBHOOK_URL']
+ntfy_url = os.environ['NTFY_URL']
 
 
 # Functions
-def fetchServerPack():
-    headers = {'x-api-key': api_key}
+def fetchServerPack(project_id):
+    headers = {'x-api-key': cf_api_key}
     response = requests.get(f'{base_url}/mods/{project_id}', headers=headers)
     response.raise_for_status()  # Ensure we got a successful response
     data = response.json()
@@ -28,8 +28,8 @@ def fetchServerPack():
     file_id = latest_file['serverPackFileId']
     return file_id
 
-def fetchDownload(file_id):
-    headers = {'x-api-key': api_key}
+def fetchDownload(project_id,file_id):
+    headers = {'x-api-key': cf_api_key}
     response = requests.get(f'{base_url}/mods/{project_id}/files/{file_id}', headers=headers)
     response.raise_for_status()  # Ensure we got a successful response
     data = response.json()
@@ -127,27 +127,39 @@ def update():
     # Check if the correct API key was provided
     if request.args.get('api_key') == my_api_key:
         logging.info(f'API hit from ip: {request.remote_addr}')
-        # Run the update script
         logging.info('Fetching latest server pack file ID')
-        server_file_id = fetchServerPack()
+        server_file_id = fetchServerPack(project_id)
         logging.info(f'Latest file ID: {server_file_id}')
         # Download the file if it doesn't exist
         if not os.path.exists(f'./{server_file_id}.zip'):
             logging.info('Downloading...')
-            file_path = fetchDownload(server_file_id)
+            file_path = fetchDownload(project_id,server_file_id)
         else:
             logging.info('File already exists')
             file_path = f'/server/{server_file_id}.zip'
         logging.info('Installing files')
         installFiles(file_path)
-        logging.info('Sending Discord webhook')
-        webhook = DiscordWebhook(url=discord_webhook, content='Server update complete ({server_file_id})')
-        webhook.execute()
+        logging.info('Sending ntfy message')
+        message = f'Server update complete {server_file_id}'
+        requests.post(ntfy_url,
+            data=message,
+            headers={
+                "Title": "MC Server Update",
+                "Tags": "white_check_box"
+            })
         logging.info('Update complete')
         return 'Update complete', 200
     else:
+        message=f"Invalid API key from ip: {request.remote_addr}"
+        logging.error(message)
+        requests.post(ntfy_url,
+            data=message,
+            headers={
+                "Title": "MC Server Update",
+                "Tags": "no_entry",
+                "Priority": "5"
+            })
         return 'Invalid API key', 401
-        logging.error('Invalid API key from ip: {request.remote_addr}')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
