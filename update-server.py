@@ -1,4 +1,4 @@
-import requests, os, zipfile, logging, hashlib, glob, shutil, pyyaml, datetime
+import requests, os, zipfile, logging, hashlib, glob, shutil, yaml, datetime
 from pprint import pprint
 from flask import Flask, request
 
@@ -7,7 +7,7 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 with open('/server/updater-config.yaml', 'r') as file:
-    config = pyyaml.safe_load(file)
+    config = yaml.safe_load(file)
 
 # Access values from the config file
 cf_api_url = config['cf_api_url']
