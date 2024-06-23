@@ -14,7 +14,7 @@ cf_api_url = config['cf_api_url']
 cf_api_key = config['cf_api_key']
 modrinth_api_url = config['modrinth_api_url']
 modrinth_api_key = config['modrinth_api_key']
-my_api_key = config['my_api_key']
+my_api_key = config['app_api_key']
 ntfy_url = config['ntfy_url']
 
 
