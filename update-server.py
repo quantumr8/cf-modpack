@@ -14,7 +14,7 @@ cf_api_url = config['cf_api_url']
 cf_api_key = config['cf_api_key']
 modrinth_api_url = config['modrinth_api_url']
 modrinth_api_key = config['modrinth_api_key']
-my_api_key = config['app_api_key']
+app_api_key = config['app_api_key']
 ntfy_url = config['ntfy_url']
 
 # Functions
@@ -172,7 +172,7 @@ app = Flask(__name__)
 @app.route('/update', methods=['GET'])
 def update():
     # Check if the correct API key was provided
-    if request.headers.get('api_key') == my_api_key:
+    if request.headers.get('api_key') == app_api_key:
         project_id = request.args.get('project_id')
         amp_instance = request.args.get('amp_instance')
         logging.info(f'API hit from ip: {request.remote_addr}')
