@@ -13,8 +13,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Make port 5000 available to the world outside this container
 EXPOSE 5000
 
-# Define environment variables
-ENV BASE_API_URL="https://api.curseforge.com/v1"
-
 # Run app.py when the container launches
 CMD ["python", "update-server.py"]

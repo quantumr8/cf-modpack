@@ -1,4 +1,4 @@
-import requests, os, zipfile, logging, hashlib, glob, shutil, yaml, datetime
+import requests, os, zipfile, logging, hashlib, glob, shutil, datetime
 from pprint import pprint
 from flask import Flask, request
 
@@ -6,16 +6,13 @@ from flask import Flask, request
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
-with open('/server/updater-config.yaml', 'r') as file:
-    config = yaml.safe_load(file)
-
 # Access values from the config file
-cf_api_url = config['cf_api_url']
-cf_api_key = config['cf_api_key']
-modrinth_api_url = config['modrinth_api_url']
-modrinth_api_key = config['modrinth_api_key']
-app_api_key = config['app_api_key']
-ntfy_url = config['ntfy_url']
+cf_api_url = os.environ['CF_API_URL']
+cf_api_key = os.environ['CF_API_KEY']
+modrinth_api_url = os.environ['MODRINTH_API_URL']
+modrinth_api_key = os.environ['MODRINTH_API_KEY']
+app_api_key = os.environ['APP_API_KEY']
+ntfy_url = os.environ['NTFY_URL']
 
 # Functions
 def fetchServerPack(project_id):
@@ -172,7 +169,7 @@ app = Flask(__name__)
 @app.route('/update', methods=['GET'])
 def update():
     # Check if the correct API key was provided
-    if request.headers.get('api_key') == app_api_key:
+    if request.headers.get('x-api-key') == app_api_key:
         project_id = request.args.get('project_id')
         amp_instance = request.args.get('amp_instance')
         logging.info(f'API hit from ip: {request.remote_addr}')
