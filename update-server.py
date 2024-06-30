@@ -14,6 +14,8 @@ modrinth_api_key = os.environ['MODRINTH_API_KEY']
 app_api_key = os.environ['APP_API_KEY']
 ntfy_url = os.environ['NTFY_URL']
 
+logging.debug(f"API KEY: {app_api_key}")
+
 # Functions
 def fetchServerPack(project_id):
     headers = {'x-api-key': cf_api_key}
@@ -196,7 +198,7 @@ def update():
         logging.info('Update complete')
         return 'Update complete', 200
     else:
-        message=f"Invalid API key from ip: {request.remote_addr}"
+        message=f"Invalid API key from ip: {request.remote_addr} key: {request.headers.get('x-api-key')}"
         logging.error(message)
         requests.post(ntfy_url,
             data=message,
